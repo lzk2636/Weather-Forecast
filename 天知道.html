@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>天知道</title>
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/iconfont.css" />
+  <link rel="stylesheet" href="css/main2.css" />
+  <script type="text/javascript" src="js/jquery-1.12.4.min.js"></script>
+  <style>
+    .tem .iconfont {
+      font-size: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="search_form">
+      <div class="logo"><img src="img/logo.png" alt="logo" /></div>
+      <div class="form_group">
+        <input type="text" class="input_txt" placeholder="请输入查询的天气" />
+        <button class="input_sub">搜 索</button>
+      </div>
+      <div class="hotkey">
+        <a href="javascript:;">北京</a><a href="javascript:;">上海</a><a href="javascript:;">广州</a><a
+          href="javascript:;">深圳</a>
+      </div>
+    </div>
+    <ul class="weather_list">
+      <li>
+        <div class="info_type">
+          <span class="iconfont">&#xe932;</span>
+        </div>
+        <div class="info_temp">高 <b>32℃</b><br />低 32℃</div>
+        <div class="info_date"><b>深圳</b><span>5月19日</span></div>
+      </li>
+      <li>
+        <div class="info_type">
+          <span class="iconfont">&#xe932;</span>
+        </div>
+        <div class="info_temp">高 <b>32℃</b><br />低 32℃</div>
+        <div class="info_date"><b>深圳</b><span>5月19日</span></div>
+      </li>
+    </ul>
+
+  </div>
+
+  <script>
+    /*
+    <div class="tem">
+      <h2>模板</h2>
+      <!-- 小雨 -->
+      <span class="iconfont">&#xe932;</span>
+      <!-- 大雨 -->
+      <span class="iconfont">&#xe931;</span>
+      <!-- 晴 -->
+      <span class="iconfont">&#xe933;</span>
+      <!-- 雨夹雪 -->
+      <span class="iconfont">&#xe934;</span>
+      <!-- 阴天 -->
+      <span class="iconfont">&#xe92d;</span>
+      <!-- 风 -->
+      <span class="iconfont">&#xeb8c;</span>
+      <!-- 雪 -->
+      <span class="iconfont">&#xeb87;</span>
+      <!-- 多云 -->
+      <span class="iconfont">&#xeb79;</span>
+      <!-- 雷 -->
+      <span class="iconfont">&#xeb77;</span>
+      <!-- 冰雹 -->
+      <span class="iconfont">&#xeb76;</span>
+      <!-- 雾霾 -->
+      <span class="iconfont">&#xeb75;</span>
+    </div>
+    */
+  </script>
+
+  <script src="./js/template-web.js"></script>
+  <script type="text/html" id='temp'>
+    {{each data.forecast}}
+    <li>
+      <div class="info_type">
+      <!-- 小雨 -->
+      {{if $value.type.indexOf('小雨')!=-1}}
+      <span class="iconfont">&#xe932;</span>
+      <!-- 大雨 -->
+      {{else if $value.type.indexOf('雨')!=-1}}
+      <span class="iconfont">&#xe931;</span>
+      <!-- 晴 -->
+      {{else if $value.type.indexOf('晴')!=-1}}
+      <span class="iconfont">&#xe933;</span>
+      <!-- 雨夹雪 -->
+      {{else if $value.type.indexOf('夹雪')!=-1}}
+      <span class="iconfont">&#xe934;</span>
+      <!-- 阴天 -->
+      {{else if $value.type.indexOf('阴')!=-1}}
+      <span class="iconfont">&#xe92d;</span>
+      <!-- 风 -->
+      {{else if $value.type.indexOf('风')!=-1}}
+      <span class="iconfont">&#xeb8c;</span>
+      <!-- 雪 -->
+      {{else if $value.type.indexOf('雪')!=-1}}
+      <span class="iconfont">&#xeb87;</span>
+      <!-- 多云 -->
+      {{else if $value.type.indexOf('多云')!=-1}}
+      <span class="iconfont">&#xeb79;</span>
+      <!-- 雷 -->
+      {{else if $value.type.indexOf('雷')!=-1}}
+      <span class="iconfont">&#xeb77;</span>
+      <!-- 冰雹 -->
+      {{else if $value.type.indexOf('冰雹')!=-1}}
+      <span class="iconfont">&#xeb76;</span>
+      <!-- 雾霾 -->
+      {{else if $value.type.indexOf('雾霾')!=-1}}
+      <span class="iconfont">&#xeb75;</span>
+      {{/if}}
+      </div>
+      <div class="info_temp">高 <b>{{$value.high.split(" ")[1]}}</b><br>低 {{$value.low.split(" ")[1]}}</div>
+        <div class="info_date"><b>{{data.city}}</b><span>{{month}}月{{$value.date.split('日')[0]}}日</span></div>
+      </li>
+{{/each}}
+  </script>
+  <script>
+    $(function () {
+      $('.input_sub').on('click', function () {
+        $('.weather_list').empty();
+        $(this).addClass('loading')
+        var msg = $('.input_txt').val().trim();
+        if (msg == '') {
+          alert('请输入信息吗?');
+          return;
+        }
+        $.ajax({
+          type: 'get',
+          url: 'http://wthrcdn.etouch.cn/weather_mini',
+          data: {
+            city: msg
+          },
+          dataType: 'json',
+          success: function (res) {
+            // console.log(res);
+            setTimeout(function () {
+              $('.input_sub').removeClass('loading');
+              var month = new Date().getMonth() + 1;
+              res.month = month;
+              var newData = template('temp', res)
+
+              $('.weather_list').html(newData)
+            }, 500)
+
+            // console.log(newData)
+
+          }
+        })
+      })
+
+
+      //2.hotkey
+
+
+      $('.hotkey>a').on('click', function () {
+        $('.input_txt').val($(this).text());
+        $('.input_sub').trigger('click')
+      })
+      //3.初始化数据
+      $('.input_txt').val('哈尔滨');
+      $('.input_sub').trigger('click');
+
+
+    })
+
+
+  </script>
+</body>
+
+</html>
